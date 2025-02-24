@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const productRoutes = require('./routes/productRoutes');
-// const inventoryRoutes = require('./routes/inventoryRoutes');
+const stockRoutes = require('./routes/stockRoutes');
 
 const app = express();
 
@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 
 // Роуты
 app.use('/api/products', productRoutes);
-// app.use('/api/inventory', inventoryRoutes);
+app.use('/api/stocks', stockRoutes);
 
 // Запуск сервера
 app.listen(3000, () => {
