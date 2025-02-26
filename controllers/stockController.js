@@ -51,7 +51,52 @@ const increaseStock = async (req, res) => {
     }
 };
 
-module.exports = { createStock, increaseStock };
+/// Уменьшение остатка с проверками
+const decreaseStock = async (req, res) => {
+    const { id, amount } = req.body;
+
+    // Проверка на правильность данных
+    if (typeof amount !== 'number' || amount <= 0) {
+        return res.status(400).json({ error: 'Amount must be a positive number' });
+    }
+
+    try {
+        // Проверка, существует ли товар с таким id
+        const result = await pool.query(
+            'SELECT quantity_shelf FROM stock WHERE id = $1',
+            [id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Stock item not found' });
+        }
+
+        // Получаем текущее количество на полке
+        const currentQuantity = result.rows[0].quantity_shelf;
+
+        // Проверка на достаточность товара для уменьшения
+        if (amount > currentQuantity) {
+            return res.status(400).json({ error: 'Amount to decrease exceeds current stock' });
+        }
+
+        // Обновление количества на полке
+        const updatedResult = await pool.query(
+            'UPDATE stock SET quantity_shelf = quantity_shelf - $1 WHERE id = $2 RETURNING *',
+            [amount, id]
+        );
+
+        res.json({
+            message: 'Stock decreased successfully',
+            updatedStock: updatedResult.rows[0],
+        });
+    } catch (err) {
+        console.error('Error decreasing stock:', err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+module.exports = { createStock, increaseStock, decreaseStock };
 
 
 
