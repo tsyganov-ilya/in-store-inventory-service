@@ -95,8 +95,61 @@ const decreaseStock = async (req, res) => {
     }
 };
 
+const getStockByFilters = async (req, res) => {
+    const { plu, shop_id, quantity_shelf_min, quantity_shelf_max, quantity_order_min, quantity_order_max } = req.query;
 
-module.exports = { createStock, increaseStock, decreaseStock };
+    let query = 'SELECT * FROM stock WHERE 1=1';
+    let params = [];
+    let paramIndex = 1;
+
+    if (plu) {
+        query += ` AND product_id = $${paramIndex}`;
+        params.push(plu);
+        paramIndex++;
+    }
+
+    if (shop_id) {
+        query += ` AND shop_id = $${paramIndex}`;
+        params.push(shop_id);
+        paramIndex++;
+    }
+
+    if (quantity_shelf_min) {
+        query += ` AND quantity_shelf >= $${paramIndex}`;
+        params.push(quantity_shelf_min);
+        paramIndex++;
+    }
+
+    if (quantity_shelf_max) {
+        query += ` AND quantity_shelf <= $${paramIndex}`;
+        params.push(quantity_shelf_max);
+        paramIndex++;
+    }
+
+    if (quantity_order_min) {
+        query += ` AND quantity_order >= $${paramIndex}`;
+        params.push(quantity_order_min);
+        paramIndex++;
+    }
+
+    if (quantity_order_max) {
+        query += ` AND quantity_order <= $${paramIndex}`;
+        params.push(quantity_order_max);
+        paramIndex++;
+    }
+
+    try {
+        const result = await pool.query(query, params);
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Ошибка при получении остатков:', err.message);
+        res.status(500).json({ error: 'Ошибка сервера' });
+    }
+};
+
+
+
+module.exports = { createStock, increaseStock, decreaseStock, getStockByFilters };
 
 
 

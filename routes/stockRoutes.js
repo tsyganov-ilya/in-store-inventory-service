@@ -1,5 +1,5 @@
 const express = require('express');
-const { createStock, increaseStock, decreaseStock } = require('../controllers/stockController.js');
+const { createStock, increaseStock, decreaseStock, getStockByFilters } = require('../controllers/stockController.js');
 
 const router = express.Router();
 
@@ -20,5 +20,8 @@ router.patch('/decrease', decreaseStock); // PATH http://localhost:3000/api/stoc
 //     "id": 3,
 //     "amount": 10
 //   } 
+router.get('/filter', getStockByFilters); //GET http://localhost:3000/api/stocks/filter?quantity_shelf_min=60&quantity_shelf_max=60
+
+
 
 module.exports = router; 
